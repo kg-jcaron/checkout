@@ -909,6 +909,11 @@ class GitCommandManager {
             return !output.stdout.trim().startsWith('refs/heads/');
         });
     }
+    lfsCheckout() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.execGit(['lfs', 'checkout']);
+        });
+    }
     lfsFetch(ref) {
         return __awaiter(this, void 0, void 0, function* () {
             const args = ['lfs', 'fetch', 'origin', ref];
@@ -1573,6 +1578,12 @@ function getSource(settings) {
             core.startGroup('Checking out the ref');
             yield git.checkout(checkoutInfo.ref, checkoutInfo.startPoint);
             core.endGroup();
+            // LFS checkout
+            if (settings.lfs && !settings.sparseCheckout) {
+                core.startGroup('Checking out LFS objects');
+                yield git.lfsCheckout();
+                core.endGroup();
+            }
             // Submodules
             if (settings.submodules) {
                 // Temporarily override global config
